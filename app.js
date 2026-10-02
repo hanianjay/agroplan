@@ -1,6 +1,6 @@
 /**
- * AgriTimeline SV IPB — Core Engine & Agronomic Database
- * Mobile-First Timeline & Cultivation Tracker
+ * AgroPlan SV IPB — Core Engine & Agronomic Database
+ * Timeline, Tracker & Precision Cultivation Assistant
  */
 
 // 1. DATABASE AGRONOMI LENGKAP (STANDAR VOKASI IPB)
@@ -481,7 +481,7 @@ const CROPS_DATABASE = {
 };
 
 // 2. STATE APLIKASI
-const STORAGE_PREFIX = "agritimeline_task_";
+const STORAGE_PREFIX = "agroplan_task_";
 let currentCropId = "cabai-rawit";
 let plantingDateStr = getTodayDateString();
 let activeTab = "timeline"; // 'timeline' | 'tasks' | 'care' | 'pests'
@@ -497,12 +497,23 @@ function getTodayDateString() {
 
 // 3. INISIALISASI
 document.addEventListener("DOMContentLoaded", () => {
+  // Restore saved preferences if available
+  const savedDate = localStorage.getItem("agroplan_planting_date");
+  if (savedDate) plantingDateStr = savedDate;
+
+  const savedCrop = localStorage.getItem("agroplan_selected_crop");
+  if (savedCrop && CROPS_DATABASE[savedCrop]) currentCropId = savedCrop;
+
   // Set default date input
   const dateInput = document.getElementById("plantingDateInput");
   if (dateInput) {
     dateInput.value = plantingDateStr;
     dateInput.addEventListener("change", (e) => {
       plantingDateStr = e.target.value || getTodayDateString();
+      const user = window.AgroPlanAuth?.getUser ? window.AgroPlanAuth.getUser() : null;
+      if (user) {
+        localStorage.setItem("agroplan_planting_date", plantingDateStr);
+      }
       renderAll();
     });
   }
@@ -510,8 +521,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Event crop selector
   const cropSelect = document.getElementById("cropSelector");
   if (cropSelect) {
+    cropSelect.value = currentCropId;
     cropSelect.addEventListener("change", (e) => {
       currentCropId = e.target.value;
+      const user = window.AgroPlanAuth?.getUser ? window.AgroPlanAuth.getUser() : null;
+      if (user) {
+        localStorage.setItem("agroplan_selected_crop", currentCropId);
+      }
       renderAll();
     });
   }
@@ -522,6 +538,11 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       switchTab(btn.dataset.tab);
     });
+  });
+
+  // Listen perubahan status login / logout untuk refresh tampilan logbook
+  window.addEventListener("agroplan:auth-changed", () => {
+    renderAll();
   });
 
   // Render awal
@@ -593,19 +614,19 @@ function renderTimelineTab(crop, currentHST) {
     const startDateStr = calculateTargetDate(plantingDateStr, phase.startDay);
     const endDateStr = calculateTargetDate(plantingDateStr, phase.endDay);
 
-    // Status styling
-    let ringClass = "border-zinc-700 bg-zinc-900 text-zinc-400";
-    let cardClass = "border-zinc-800 bg-zinc-900/60";
-    let statusBadge = `<span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">Mendatang</span>`;
+    // Status styling for warm cream & orange theme
+    let ringClass = "border-[#DDD0BF] bg-[#FAF7F2] text-[#8A7B6E]";
+    let cardClass = "border-[#E8DFD3] bg-white shadow-sm";
+    let statusBadge = `<span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-lg bg-[#F5EFEB] text-[#8A7B6E] border border-[#E5DCD0]">Mendatang</span>`;
 
     if (isActive) {
-      ringClass = "border-emerald-500 bg-emerald-950 text-emerald-400 ring-4 ring-emerald-500/20";
-      cardClass = "border-emerald-500/50 bg-gradient-to-b from-emerald-950/40 to-zinc-900 shadow-lg shadow-emerald-950/20";
-      statusBadge = `<span class="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>Sedang Berlangsung</span>`;
+      ringClass = "border-orange-500 bg-orange-500 text-white ring-4 ring-orange-100";
+      cardClass = "border-orange-300 bg-gradient-to-b from-orange-50/50 via-white to-white shadow-md shadow-orange-950/5";
+      statusBadge = `<span class="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-lg bg-orange-100 text-orange-800 border border-orange-200 font-semibold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping"></span>Sedang Berlangsung</span>`;
     } else if (isPast) {
-      ringClass = "border-zinc-600 bg-zinc-800 text-zinc-300";
-      cardClass = "border-zinc-800/80 bg-zinc-900/40 opacity-75";
-      statusBadge = `<span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-zinc-800/80 text-zinc-400">Selesai</span>`;
+      ringClass = "border-orange-300 bg-orange-50 text-orange-700";
+      cardClass = "border-[#E8DFD3] bg-[#FAF7F2]/80 opacity-80";
+      statusBadge = `<span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-lg bg-[#EFE8DC] text-[#7A6B5D]">Selesai</span>`;
     }
 
     const card = document.createElement("div");
@@ -613,7 +634,7 @@ function renderTimelineTab(crop, currentHST) {
 
     card.innerHTML = `
       <!-- Timeline Connector Line -->
-      ${index < crop.phases.length - 1 ? `<div class="absolute left-3.5 sm:left-4 top-8 bottom-0 w-0.5 bg-zinc-800"></div>` : ""}
+      ${index < crop.phases.length - 1 ? `<div class="absolute left-3.5 sm:left-4 top-8 bottom-0 w-0.5 bg-[#E5DCD0]"></div>` : ""}
       
       <!-- Timeline Dot / Icon -->
       <div class="absolute left-1.5 sm:left-2 top-0.5 w-5 h-5 rounded-full border-2 ${ringClass} flex items-center justify-center text-[10px] font-bold">
@@ -621,33 +642,35 @@ function renderTimelineTab(crop, currentHST) {
       </div>
 
       <!-- Phase Card Content -->
-      <div class="rounded-2xl border ${cardClass} p-4 sm:p-5 transition hover:border-zinc-700">
+      <div class="rounded-3xl border ${cardClass} p-4 sm:p-5 transition hover:border-orange-300">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-mono font-semibold text-emerald-400">HST ${phase.startDay} - ${phase.endDay}</span>
-            <span class="text-xs text-zinc-500">•</span>
-            <span class="text-xs text-zinc-400">${startDateStr} – ${endDateStr}</span>
+            <span class="text-xs font-mono font-semibold text-orange-600">HST ${phase.startDay} - ${phase.endDay}</span>
+            <span class="text-xs text-[#DDD0BF]">•</span>
+            <span class="text-xs text-[#7A6B5D]">${startDateStr} – ${endDateStr}</span>
           </div>
           ${statusBadge}
         </div>
 
-        <h3 class="text-base sm:text-lg font-bold text-white mb-2">
+        <h3 class="text-base sm:text-lg font-bold text-[#2D231B] mb-2">
           ${phase.name}
         </h3>
 
-        <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed mb-4">
+        <p class="text-xs sm:text-sm text-[#5D5044] leading-relaxed mb-4">
           ${phase.description}
         </p>
 
         <!-- Mini Tasks Inside Phase -->
-        <div class="space-y-1.5 pt-3 border-t border-zinc-800/80">
-          <span class="text-[10px] uppercase font-mono tracking-wider text-zinc-500 block mb-1">Aktivitas Utama:</span>
-          ${phase.tasks.map(t => `
-            <div class="flex items-start gap-2 text-xs text-zinc-300">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0"></i>
-              <span><b class="text-zinc-400 font-mono">Hari ${t.day}:</b> ${t.label}</span>
-            </div>
-          `).join("")}
+        <div class="pt-3 border-t border-[#E8DFD3]">
+          <span class="text-[10px] uppercase font-mono tracking-wider text-[#8A7B6E] block mb-2">Aktivitas Utama:</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            ${phase.tasks.map(t => `
+              <div class="flex items-start gap-2 text-xs text-[#3E332A] bg-[#FAF7F2] p-2.5 rounded-2xl border border-[#E8DFD3]">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-orange-600 mt-0.5 flex-shrink-0"></i>
+                <span><b class="text-[#7A6B5D] font-mono">Hari ${t.day}:</b> ${t.label}</span>
+              </div>
+            `).join("")}
+          </div>
         </div>
       </div>
     `;
@@ -660,6 +683,8 @@ function renderTimelineTab(crop, currentHST) {
 function renderTasksTab(crop, currentHST) {
   const container = document.getElementById("tasksContent");
   container.innerHTML = "";
+
+  const user = window.AgroPlanAuth?.getUser ? window.AgroPlanAuth.getUser() : null;
 
   // Flatten all tasks
   let allTasks = [];
@@ -675,42 +700,99 @@ function renderTasksTab(crop, currentHST) {
 
   // Calculate task completion
   const storageKey = STORAGE_PREFIX + crop.id;
-  let savedTasks = JSON.parse(localStorage.getItem(storageKey) || "[]");
+  let savedTasks = JSON.parse(localStorage.getItem(storageKey) || localStorage.getItem("agritimeline_task_" + crop.id) || "[]");
 
   const completedCount = allTasks.filter(t => savedTasks.includes(t.id)).length;
   const taskPct = Math.round((completedCount / allTasks.length) * 100);
 
   // Header Task Progress
   const headerCard = document.createElement("div");
-  headerCard.className = "bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4";
+  headerCard.className = "bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-6 mb-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm";
   headerCard.innerHTML = `
     <div>
-      <span class="text-xs font-mono uppercase text-emerald-400 tracking-wider font-semibold block mb-0.5">Logbook & Checklist Lapangan</span>
-      <h3 class="text-lg font-bold text-white">Progress Kegiatan Budidaya</h3>
-      <p class="text-xs text-zinc-400 mt-0.5">${completedCount} dari ${allTasks.length} tugas praktikum telah diselesaikan.</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-xs font-mono uppercase text-orange-600 tracking-wider font-semibold">Logbook & Checklist Lapangan</span>
+        ${user ? `
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Tersimpan Otomatis (${user.email})
+          </span>
+        ` : `
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">
+            Mode Pratinjau (Tamu)
+          </span>
+        `}
+      </div>
+      <h3 class="text-lg sm:text-xl font-bold text-[#2D231B]">Progress Kegiatan Budidaya</h3>
+      <p class="text-xs text-[#7A6B5D] mt-0.5">${completedCount} dari ${allTasks.length} tugas praktikum telah diselesaikan.</p>
     </div>
-    <div class="w-full sm:w-48 bg-zinc-950 p-3 rounded-xl border border-zinc-800 text-center flex items-center justify-between sm:flex-col sm:justify-center">
-      <span class="text-2xl font-bold font-mono text-emerald-400">${taskPct}%</span>
-      <span class="text-[10px] text-zinc-400 uppercase tracking-wider">Tuntas</span>
+    <div class="w-full sm:w-48 bg-[#FAF7F2] p-3.5 rounded-2xl border border-[#E5DCD0] text-center flex items-center justify-between sm:flex-col sm:justify-center">
+      <span class="text-2xl sm:text-3xl font-bold font-mono text-orange-600">${taskPct}%</span>
+      <span class="text-[10px] text-[#8A7B6E] uppercase tracking-wider font-semibold">Tuntas</span>
     </div>
   `;
   container.appendChild(headerCard);
 
-  // Task List Items
+  // Banner prompt jika user belum login
+  if (!user) {
+    const authBanner = document.createElement("div");
+    authBanner.className = "bg-gradient-to-r from-amber-50/90 via-[#FFFDF9] to-orange-50 border border-amber-200/90 rounded-3xl p-4 sm:p-5 mb-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm";
+    authBanner.innerHTML = `
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-2xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center text-orange-600 shrink-0 mt-0.5">
+          <i data-lucide="lock" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h4 class="text-xs sm:text-sm font-bold text-[#2D231B]">Ingin Menyimpan Checklist Logbook Anda?</h4>
+          <p class="text-[11px] sm:text-xs text-[#7A6B5D] mt-0.5 leading-relaxed">
+            Silakan <strong>Masuk</strong> atau <strong>Daftar Akun</strong> terlebih dahulu agar setiap kegiatan budidaya yang Anda centang dapat disimpan di memori perangkat Anda.
+          </p>
+        </div>
+      </div>
+      <button 
+        type="button" 
+        id="promptAuthBtn"
+        class="w-full sm:w-auto px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs rounded-xl shadow-sm shadow-orange-500/20 transition active:scale-95 whitespace-nowrap cursor-pointer flex items-center justify-center gap-1.5"
+      >
+        <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+        <span>Masuk / Daftar Akun</span>
+      </button>
+    `;
+    container.appendChild(authBanner);
+
+    const promptBtn = authBanner.querySelector("#promptAuthBtn");
+    if (promptBtn) {
+      promptBtn.addEventListener("click", () => {
+        window.AgroPlanAuth?.openModal("login", `
+          <div class="space-y-1">
+            <p class="font-bold flex items-center gap-1.5 text-amber-800">
+              <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              Simpan Data Logbook
+            </p>
+            <p class="text-xs text-amber-900 leading-relaxed">
+              Silakan <strong>Masuk</strong> atau <strong>Daftar Akun</strong> terlebih dahulu agar checklist kegiatan praktikum dapat tersimpan di browser Anda.
+            </p>
+          </div>
+        `);
+      });
+    }
+  }
+
+  // Task List Items (Responsive 2 columns on desktop)
   const listContainer = document.createElement("div");
-  listContainer.className = "space-y-2.5";
+  listContainer.className = "grid grid-cols-1 lg:grid-cols-2 gap-3";
 
   allTasks.forEach(task => {
     const isDone = savedTasks.includes(task.id);
     const isDue = currentHST >= task.day;
 
     const row = document.createElement("div");
-    row.className = `p-3.5 sm:p-4 rounded-xl border transition flex items-start gap-3.5 cursor-pointer ${
+    row.className = `p-3.5 sm:p-4 rounded-2xl border transition flex items-start gap-3.5 cursor-pointer ${
       isDone 
-        ? "bg-zinc-900/40 border-zinc-800/60 opacity-60" 
+        ? "bg-[#F5EFEB]/70 border-[#E8DFD3] opacity-75" 
         : isDue 
-        ? "bg-zinc-900 border-zinc-700/80 hover:border-emerald-500/60" 
-        : "bg-zinc-950/60 border-zinc-900 hover:border-zinc-800"
+        ? "bg-white border-[#DDD0BF] hover:border-orange-400 shadow-sm" 
+        : "bg-[#FAF7F2] border-[#E8DFD3] hover:border-[#D6C8B6]"
     }`;
 
     row.innerHTML = `
@@ -719,17 +801,17 @@ function renderTasksTab(crop, currentHST) {
           type="checkbox" 
           id="${task.id}" 
           ${isDone ? "checked" : ""} 
-          class="w-4 h-4 rounded border-zinc-700 text-emerald-600 focus:ring-emerald-500 bg-zinc-800 cursor-pointer pointer-events-none"
+          class="w-4 h-4 rounded border-[#D6C8B6] text-orange-600 focus:ring-orange-500 bg-[#FAF7F2] cursor-pointer pointer-events-none accent-orange-600"
         />
       </div>
       <div class="flex-1 min-w-0">
         <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
-          <span class="text-xs font-mono font-bold ${isDone ? "line-through text-zinc-500" : isDue ? "text-emerald-400" : "text-zinc-500"}">
+          <span class="text-xs font-mono font-bold ${isDone ? "line-through text-[#A69687]" : isDue ? "text-orange-600" : "text-[#8A7B6E]"}">
             Hari ke-${task.day} • ${task.targetDate}
           </span>
-          <span class="text-[10px] text-zinc-500 truncate">${task.phaseName}</span>
+          <span class="text-[10px] text-[#8A7B6E] truncate">${task.phaseName}</span>
         </div>
-        <p class="text-xs sm:text-sm font-medium ${isDone ? "line-through text-zinc-500" : "text-zinc-200"}">
+        <p class="text-xs sm:text-sm font-medium ${isDone ? "line-through text-[#A69687]" : "text-[#2D231B]"}">
           ${task.label}
         </p>
       </div>
@@ -746,8 +828,29 @@ function renderTasksTab(crop, currentHST) {
 }
 
 function toggleTaskCompletion(cropId, taskId) {
+  const user = window.AgroPlanAuth?.getUser ? window.AgroPlanAuth.getUser() : null;
+
+  // Jika user belum login, prompt untuk login atau daftar terlebih dahulu!
+  if (!user) {
+    if (window.AgroPlanAuth?.openModal) {
+      window.AgroPlanAuth.openModal("login", `
+        <div class="space-y-1">
+          <p class="font-bold flex items-center gap-1.5 text-amber-800">
+            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Perlu Masuk Akun
+          </p>
+          <p class="text-xs text-amber-900 leading-relaxed">
+            Untuk menyimpan checklist logbook praktikum Anda, silakan <strong>Masuk</strong> atau <strong>Daftar Akun</strong> terlebih dahulu.
+          </p>
+        </div>
+      `);
+    }
+    return;
+  }
+
+  // Jika sudah login, simpan ke localStorage!
   const storageKey = STORAGE_PREFIX + cropId;
-  let savedTasks = JSON.parse(localStorage.getItem(storageKey) || "[]");
+  let savedTasks = JSON.parse(localStorage.getItem(storageKey) || localStorage.getItem("agritimeline_task_" + cropId) || "[]");
 
   if (savedTasks.includes(taskId)) {
     savedTasks = savedTasks.filter(id => id !== taskId);
@@ -770,69 +873,69 @@ function renderCareTab(crop) {
   const w = crop.watering;
 
   const card = document.createElement("div");
-  card.className = "space-y-6";
+  card.className = "grid grid-cols-1 lg:grid-cols-2 gap-6 items-start";
 
   card.innerHTML = `
     <!-- Card Jadwal Penyiraman -->
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+    <div class="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-6 shadow-sm">
       <div class="flex items-center gap-2.5 mb-4">
-        <div class="p-2 rounded-xl bg-blue-950/80 border border-blue-500/40 text-blue-400">
+        <div class="p-2 rounded-xl bg-blue-50 border border-blue-200 text-blue-600">
           <i data-lucide="droplets" class="w-5 h-5"></i>
         </div>
         <div>
-          <span class="text-xs font-mono uppercase text-blue-400 tracking-wider">Manajemen Air</span>
-          <h3 class="text-lg font-bold text-white">Protokol Penyiraman Presisi</h3>
+          <span class="text-xs font-mono uppercase text-blue-600 tracking-wider">Manajemen Air</span>
+          <h3 class="text-lg font-bold text-[#2D231B]">Protokol Penyiraman Presisi</h3>
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        <div class="bg-zinc-950 p-4 rounded-xl border border-zinc-800/80">
-          <span class="text-[11px] text-zinc-500 block mb-1">Frekuensi & Waktu Optimal:</span>
-          <p class="text-sm font-semibold text-zinc-200">${w.frequency}</p>
+        <div class="bg-[#FAF7F2] p-4 rounded-2xl border border-[#E8DFD3]">
+          <span class="text-[11px] text-[#8A7B6E] block mb-1">Frekuensi & Waktu Optimal:</span>
+          <p class="text-sm font-semibold text-[#2D231B]">${w.frequency}</p>
         </div>
-        <div class="bg-zinc-950 p-4 rounded-xl border border-zinc-800/80">
-          <span class="text-[11px] text-zinc-500 block mb-1">Takaran / Volume Air:</span>
-          <p class="text-sm font-semibold text-zinc-200">${w.volume}</p>
+        <div class="bg-[#FAF7F2] p-4 rounded-2xl border border-[#E8DFD3]">
+          <span class="text-[11px] text-[#8A7B6E] block mb-1">Takaran / Volume Air:</span>
+          <p class="text-sm font-semibold text-[#2D231B]">${w.volume}</p>
         </div>
       </div>
 
-      <div class="space-y-2.5 text-xs text-zinc-300">
-        <div class="p-3 bg-zinc-950/60 rounded-xl border border-zinc-800/50 flex items-start gap-2.5">
-          <i data-lucide="info" class="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0"></i>
-          <div><b class="text-zinc-200">Uji Kelembapan Tanah:</b> ${w.soilCheck}</div>
+      <div class="space-y-2.5 text-xs text-[#5D5044]">
+        <div class="p-3.5 bg-[#F5EFEB] rounded-2xl border border-[#E8DFD3] flex items-start gap-2.5">
+          <i data-lucide="info" class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0"></i>
+          <div><b class="text-[#2D231B]">Uji Kelembapan Tanah:</b> ${w.soilCheck}</div>
         </div>
-        <div class="p-3 bg-amber-950/20 rounded-xl border border-amber-500/30 flex items-start gap-2.5">
-          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0"></i>
-          <div><b class="text-amber-300">Aturan Krusial:</b> ${w.goldenRule}</div>
+        <div class="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 flex items-start gap-2.5 text-amber-900">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0"></i>
+          <div><b class="text-amber-800">Aturan Krusial:</b> ${w.goldenRule}</div>
         </div>
       </div>
     </div>
 
     <!-- Card Kebutuhan Pemupukan -->
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+    <div class="bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-6 shadow-sm">
       <div class="flex items-center gap-2.5 mb-4">
-        <div class="p-2 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-400">
+        <div class="p-2 rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
           <i data-lucide="flask-conical" class="w-5 h-5"></i>
         </div>
         <div>
-          <span class="text-xs font-mono uppercase text-emerald-400 tracking-wider">Nutrisi & Unsur Hara</span>
-          <h3 class="text-lg font-bold text-white">Kalender Dosis Pemupukan</h3>
+          <span class="text-xs font-mono uppercase text-orange-600 tracking-wider">Nutrisi & Unsur Hara</span>
+          <h3 class="text-lg font-bold text-[#2D231B]">Kalender Dosis Pemupukan</h3>
         </div>
       </div>
 
       <div class="space-y-3">
         ${crop.fertilization.map((f, idx) => `
-          <div class="p-4 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="p-4 rounded-2xl bg-[#FAF7F2] border border-[#E8DFD3] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-              <span class="text-xs font-mono font-bold px-2.5 py-1 rounded bg-zinc-900 border border-zinc-700 text-emerald-400">
+              <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-white border border-[#DDD0BF] text-orange-600 shadow-sm">
                 ${f.hst}
               </span>
               <div>
-                <h4 class="text-sm font-bold text-zinc-100">${f.fertilizer}</h4>
-                <p class="text-xs text-zinc-400 mt-0.5">${f.dose}</p>
+                <h4 class="text-sm font-bold text-[#2D231B]">${f.fertilizer}</h4>
+                <p class="text-xs text-[#7A6B5D] mt-0.5">${f.dose}</p>
               </div>
             </div>
-            <div class="text-[11px] text-zinc-500 max-w-xs text-left sm:text-right">
+            <div class="text-[11px] text-[#8A7B6E] max-w-xs text-left sm:text-right">
               ${f.note}
             </div>
           </div>
@@ -850,35 +953,35 @@ function renderPestsTab(crop) {
   container.innerHTML = "";
 
   const grid = document.createElement("div");
-  grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
+  grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5";
 
   crop.pests.forEach(pest => {
     const card = document.createElement("div");
-    card.className = "bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between hover:border-zinc-700 transition";
+    card.className = "bg-white border border-[#E8DFD3] rounded-3xl p-5 flex flex-col justify-between hover:border-orange-300 shadow-sm transition";
 
     const badgeColor = pest.severity === "Kritis" 
-      ? "bg-red-950/80 text-red-300 border-red-500/50" 
+      ? "bg-red-50 text-red-700 border-red-200" 
       : pest.severity === "Tinggi"
-      ? "bg-amber-950/80 text-amber-300 border-amber-500/50"
-      : "bg-blue-950/80 text-blue-300 border-blue-500/50";
+      ? "bg-amber-50 text-amber-700 border-amber-200"
+      : "bg-orange-50 text-orange-700 border-orange-200";
 
     card.innerHTML = `
       <div>
         <div class="flex items-center justify-between gap-2 mb-2">
-          <span class="text-[11px] text-zinc-400 font-mono">${pest.category}</span>
-          <span class="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded border ${badgeColor}">
+          <span class="text-[11px] text-[#8A7B6E] font-mono">${pest.category}</span>
+          <span class="text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded-lg border ${badgeColor}">
             Tingkat Bahaya: ${pest.severity}
           </span>
         </div>
 
-        <h3 class="text-base font-bold text-white mb-2">
+        <h3 class="text-base font-bold text-[#2D231B] mb-2">
           ${pest.name}
         </h3>
 
         <!-- Gejala -->
         <div class="mb-3.5">
-          <span class="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1">Gejala Serangan:</span>
-          <p class="text-xs text-zinc-300 leading-relaxed bg-zinc-950 p-2.5 rounded-lg border border-zinc-800/80">
+          <span class="text-[11px] font-semibold text-[#7A6B5D] uppercase tracking-wider block mb-1">Gejala Serangan:</span>
+          <p class="text-xs text-[#4A3D32] leading-relaxed bg-[#FAF7F2] p-3 rounded-2xl border border-[#E8DFD3]">
             ${pest.symptoms}
           </p>
         </div>
@@ -886,12 +989,12 @@ function renderPestsTab(crop) {
         <!-- Pencegahan & Pengendalian Organik -->
         <div class="space-y-2 text-xs">
           <div>
-            <span class="text-[11px] text-emerald-400 font-semibold block mb-0.5">Langkah Preventif:</span>
-            <p class="text-zinc-400">${pest.prevention}</p>
+            <span class="text-[11px] text-orange-600 font-semibold block mb-0.5">Langkah Preventif:</span>
+            <p class="text-[#5D5044]">${pest.prevention}</p>
           </div>
-          <div class="pt-2 border-t border-zinc-800">
-            <span class="text-[11px] text-amber-400 font-semibold block mb-0.5">Resep Ramah Lingkungan (PHT):</span>
-            <p class="text-zinc-300">${pest.organicRecipe}</p>
+          <div class="pt-2 border-t border-[#E8DFD3]">
+            <span class="text-[11px] text-[#8C4E1A] font-semibold block mb-0.5">Resep Ramah Lingkungan (PHT):</span>
+            <p class="text-[#3E332A]">${pest.organicRecipe}</p>
           </div>
         </div>
       </div>
@@ -911,11 +1014,11 @@ function switchTab(tabId) {
   const tabButtons = document.querySelectorAll(".tab-btn");
   tabButtons.forEach(btn => {
     if (btn.dataset.tab === tabId) {
-      btn.classList.add("bg-zinc-800", "text-white", "border-zinc-700");
-      btn.classList.remove("text-zinc-400", "border-transparent");
+      btn.classList.add("bg-white", "text-[#2D231B]", "border-[#DDD0BF]", "shadow-sm");
+      btn.classList.remove("text-[#7A6B5D]", "border-transparent");
     } else {
-      btn.classList.remove("bg-zinc-800", "text-white", "border-zinc-700");
-      btn.classList.add("text-zinc-400", "border-transparent");
+      btn.classList.remove("bg-white", "text-[#2D231B]", "border-[#DDD0BF]", "shadow-sm");
+      btn.classList.add("text-[#7A6B5D]", "border-transparent");
     }
   });
 

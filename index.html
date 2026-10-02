@@ -1,27 +1,47 @@
 <!DOCTYPE html>
-<html lang="id" class="dark scroll-smooth">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>AgriTimeline — Timeline & Tracker Budidaya Tanaman | SV IPB</title>
+  <title>AgroPlan — Timeline & Tracker Budidaya Tanaman | SV IPB</title>
   
-  <meta name="description" content="Aplikasi mobile-first generator timeline budidaya tanaman, kalender kegiatan, jadwal penyiraman, dosis pupuk, dan identifikasi hama untuk mahasiswa SV IPB." />
+  <meta name="description" content="AgroPlan: Aplikasi generator timeline budidaya tanaman, kalender kegiatan, jadwal penyiraman, dosis pupuk, dan identifikasi hama untuk mahasiswa SV IPB." />
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            brand: {
-              emerald: '#10b981',
-              emeraldDark: '#047857',
-              zincDark: '#09090b',
-              surface: '#121215',
-              card: '#18181b',
-              border: '#27272a'
+            cream: {
+              50: '#FDFBF7',
+              100: '#FAF7F2',
+              200: '#F5EFEB',
+              300: '#EFE8DE',
+              400: '#E4D9C8',
+            },
+            warm: {
+              border: '#E8DFD3',
+              borderDark: '#D6C8B6',
+              card: '#FFFFFF',
+              bg: '#FAF7F2',
+              subtle: '#F4EEE5',
+              text: '#2D231B',
+              muted: '#7A6B5D',
+              light: '#A69687'
+            },
+            terracotta: {
+              50: '#FFF7ED',
+              100: '#FFEDD5',
+              200: '#FED7AA',
+              300: '#FDBA74',
+              400: '#FB923C',
+              500: '#F97316',
+              600: '#EA580C',
+              700: '#C2410C',
+              800: '#9A3412',
+              900: '#7C2D12'
             }
           }
         }
@@ -45,179 +65,203 @@
     .font-mono {
       font-family: 'JetBrains Mono', monospace;
     }
-    /* Hide native date icon styling in dark mode for sleek look */
     input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.8);
       cursor: pointer;
+      opacity: 0.6;
     }
   </style>
 </head>
 
-<body class="bg-[#09090b] text-zinc-100 min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black">
+<body class="bg-[#FAF7F2] text-[#2D231B] min-h-screen flex flex-col selection:bg-orange-200 selection:text-orange-950">
 
-  <!-- TOP APP BAR (MOBILE FIRST) -->
-  <header class="sticky top-0 z-50 bg-[#09090b]/80 backdrop-blur-lg border-b border-zinc-800/80 px-4 py-3.5">
-    <div class="max-w-2xl mx-auto flex items-center justify-between">
+  <!-- TOP APP BAR -->
+  <header class="sticky top-0 z-50 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-[#E8DFD3] px-4 sm:px-6 lg:px-8 py-3.5">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-          <i data-lucide="sprout" class="w-4 h-4"></i>
+        <div class="w-9 h-9 rounded-2xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center text-orange-600 shadow-sm">
+          <i data-lucide="sprout" class="w-5 h-5"></i>
         </div>
-        <div>
-          <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5 leading-none">
-            AgriTimeline
-            <span class="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30">
-              SV IPB
-            </span>
-          </h1>
-          <p class="text-[10px] text-zinc-400 mt-0.5">Asisten Budidaya & Tracker Tani</p>
-        </div>
+        <h1 class="text-lg sm:text-xl font-bold tracking-tight text-[#2D231B]">
+          AgroPlan
+        </h1>
       </div>
 
       <!-- User / Auth Profile Button -->
       <div id="authHeaderContainer" class="flex items-center gap-2">
-        <button id="openAuthModalBtn" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 transition font-sans shadow-sm shadow-emerald-500/20 active:scale-95 cursor-pointer">
-          <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+        <button id="openAuthModalBtn" class="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-orange-500 hover:bg-orange-600 text-white transition font-sans shadow-sm shadow-orange-500/20 active:scale-95 cursor-pointer">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
           <span>Masuk / Daftar</span>
         </button>
 
         <div id="userProfileNav" class="hidden flex items-center gap-2">
-          <div class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-700/80 px-2.5 py-1.5 rounded-xl text-xs">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span id="userEmailNav" class="max-w-[110px] sm:max-w-[170px] truncate text-zinc-200 font-medium font-mono text-[11px]"></span>
+          <div class="flex items-center gap-2 bg-white border border-[#E8DFD3] shadow-sm px-3 py-2 rounded-xl text-xs">
+            <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+            <span id="userEmailNav" class="max-w-[130px] sm:max-w-[220px] truncate text-[#2D231B] font-medium font-mono text-[11px]"></span>
           </div>
-          <button id="logoutBtn" title="Keluar / Logout" class="p-1.5 rounded-xl bg-zinc-900 hover:bg-red-500/20 hover:text-red-400 text-zinc-400 border border-zinc-700/80 transition active:scale-95 cursor-pointer">
-            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <button id="logoutBtn" title="Keluar / Logout" class="p-2 rounded-xl bg-white hover:bg-rose-50 hover:text-rose-600 text-[#7A6B5D] border border-[#E8DFD3] transition active:scale-95 shadow-sm cursor-pointer">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- MAIN WRAPPER (MAX-W-2XL FOR SLEEK MOBILE APP FEEL) -->
-  <main class="max-w-2xl mx-auto w-full px-4 pt-5 pb-24 flex-1">
+  <!-- MAIN WRAPPER (RESPONSIVE MAX-W-6XL) -->
+  <main class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-24 flex-1">
 
-    <!-- SELECTOR CARD: PILIH TANAMAN & TANGGAL TANAM -->
-    <section class="bg-[#121215] border border-zinc-800 rounded-2xl p-4 sm:p-5 mb-5 shadow-xl">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        
-        <!-- Dropdown Pilih Tanaman -->
-        <div>
-          <label class="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 flex items-center gap-1.5">
-            <i data-lucide="flower-2" class="w-3.5 h-3.5 text-emerald-400"></i>
-            Pilih Tanaman Praktikum
-          </label>
-          <div class="relative">
-            <select 
-              id="cropSelector" 
-              class="w-full appearance-none bg-[#18181b] border border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition cursor-pointer">
-              <option value="cabai-rawit">Cabai Rawit Merah (90-100 HST)</option>
-              <option value="tomat">Tomat Ceri & Sayur (70-80 HST)</option>
-              <option value="selada-hidroponik">Selada Keriting Hidroponik (35-40 HSS)</option>
-              <option value="pakcoy">Pakcoy / Sawi Sendok (30-35 HST)</option>
-              <option value="melon">Melon Golden Praktikum (65-75 HST)</option>
-            </select>
-            <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-          </div>
-        </div>
-
-        <!-- Date Picker Tanggal Mulai Tanam -->
-        <div>
-          <label class="block text-[11px] font-mono uppercase tracking-wider text-zinc-400 mb-1.5 flex items-center gap-1.5">
-            <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i>
-            Tanggal Mulai Tanam / Semai
-          </label>
-          <input 
-            type="date" 
-            id="plantingDateInput" 
-            class="w-full bg-[#18181b] border border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition font-mono cursor-pointer"
-          />
-        </div>
-
-      </div>
-    </section>
-
-    <!-- REAL-TIME STATUS CARD (HST COUNTER & PROGRESS BAR) -->
-    <section class="bg-gradient-to-br from-[#131c17] to-[#121215] border border-emerald-500/30 rounded-2xl p-4 sm:p-5 mb-6 shadow-2xl relative overflow-hidden">
+    <!-- TOP DASHBOARD GRID: SELECTOR & REAL-TIME STATUS (SIDE-BY-SIDE ON DESKTOP) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-6">
       
-      <!-- Top info -->
-      <div class="flex items-start justify-between gap-3 mb-3">
+      <!-- SELECTOR CARD: PILIH TANAMAN & TANGGAL TANAM (5 COLS ON LG) -->
+      <section class="lg:col-span-5 bg-white border border-[#E8DFD3] rounded-3xl p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(110,88,68,0.05)] flex flex-col justify-between">
         <div>
-          <span id="cropScientific" class="text-[11px] font-mono text-emerald-400 block mb-0.5">
-            Nama Latin Tanaman
-          </span>
-          <h2 id="cropTitle" class="text-xl sm:text-2xl font-bold text-white tracking-tight">
-            Nama Tanaman
-          </h2>
-        </div>
-        
-        <!-- Big HST badge -->
-        <div class="text-right">
-          <div id="statHST" class="text-2xl sm:text-3xl font-black font-mono text-emerald-400 tracking-tight leading-none">
-            HST 1
+          <!-- Card Header with SV IPB Badge and Description -->
+          <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-[#E8DFD3]/80">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center text-orange-600">
+                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+              </div>
+              <div>
+                <h2 class="text-sm font-bold text-[#2D231B]">Parameter Budidaya</h2>
+                <p class="text-[11px] text-[#7A6B5D]">Asisten Budidaya & Tracker Tani Presisi</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-lg bg-[#F5EFEB] text-[#8C4E1A] border border-[#E5DCD0] shrink-0">
+              SV IPB
+            </span>
           </div>
-          <span id="statTotalDays" class="text-[10px] font-mono text-zinc-400 block mt-1">
-            / 100 Hari
-          </span>
-        </div>
-      </div>
 
-      <p id="cropSummary" class="text-xs text-zinc-300 leading-relaxed mb-4">
-        Ringkasan kebutuhan tanaman praktikum.
-      </p>
+          <div class="space-y-4">
+            <!-- Dropdown Pilih Tanaman -->
+            <div>
+              <label class="block text-[11px] font-mono uppercase tracking-wider text-[#7A6B5D] mb-1.5 flex items-center gap-1.5 font-semibold">
+                <i data-lucide="flower-2" class="w-3.5 h-3.5 text-orange-600"></i>
+                Pilih Tanaman Praktikum
+              </label>
+              <div class="relative">
+                <select 
+                  id="cropSelector" 
+                  class="w-full appearance-none bg-[#FAF7F2] border border-[#E0D5C7] rounded-2xl px-4 py-2.5 text-sm font-semibold text-[#2D231B] focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition cursor-pointer">
+                  <option value="cabai-rawit">Cabai Rawit Merah (90-100 HST)</option>
+                  <option value="tomat">Tomat Ceri & Sayur (70-80 HST)</option>
+                  <option value="selada-hidroponik">Selada Keriting Hidroponik (35-40 HSS)</option>
+                  <option value="pakcoy">Pakcoy / Sawi Sendok (30-35 HST)</option>
+                  <option value="melon">Melon Golden Praktikum (65-75 HST)</option>
+                </select>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-[#8A7B6E] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              </div>
+            </div>
 
-      <!-- Progress Bar -->
-      <div class="space-y-1.5 pt-3 border-t border-zinc-800/80">
-        <div class="flex justify-between items-center text-xs font-mono">
-          <span class="text-zinc-400 flex items-center gap-1">
-            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-400"></i>
-            Progres Menuju Panen
-          </span>
-          <span id="statProgressPct" class="font-bold text-emerald-400">0%</span>
+            <!-- Date Picker Tanggal Mulai Tanam -->
+            <div>
+              <label class="block text-[11px] font-mono uppercase tracking-wider text-[#7A6B5D] mb-1.5 flex items-center gap-1.5 font-semibold">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-orange-600"></i>
+                Tanggal Mulai Tanam / Semai
+              </label>
+              <input 
+                type="date" 
+                id="plantingDateInput" 
+                class="w-full bg-[#FAF7F2] border border-[#E0D5C7] rounded-2xl px-4 py-2.5 text-sm font-semibold text-[#2D231B] focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition font-mono cursor-pointer"
+              />
+            </div>
+          </div>
         </div>
+
+        <div class="pt-4 mt-4 border-t border-[#E8DFD3]/80 flex items-center justify-between text-[11px] text-[#8A7B6E]">
+          <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-orange-600"></i> Kebun Percobaan SV IPB</span>
+          <span class="font-mono font-medium">Protokol PPP</span>
+        </div>
+      </section>
+
+      <!-- REAL-TIME STATUS CARD (HST COUNTER & PROGRESS BAR) (7 COLS ON LG) -->
+      <section class="lg:col-span-7 bg-gradient-to-br from-[#FFFFFF] via-[#FFFDF9] to-[#F7F1E7] border border-[#E5D8C7] rounded-3xl p-5 sm:p-6 shadow-[0_4px_20px_-4px_rgba(110,88,68,0.06)] relative overflow-hidden flex flex-col justify-between">
+        <!-- Decorative warm subtle ambient glows -->
+        <div class="absolute -right-10 -bottom-10 w-56 h-56 rounded-full bg-orange-200/35 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-44 h-44 rounded-full bg-amber-100/50 blur-3xl pointer-events-none"></div>
         
-        <div class="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden p-0.5">
-          <div id="statProgressBar" class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700 w-0"></div>
+        <!-- Top info -->
+        <div class="relative z-10">
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <span id="cropScientific" class="text-xs font-mono font-semibold text-orange-600 block mb-1">
+                Nama Latin Tanaman
+              </span>
+              <h2 id="cropTitle" class="text-xl sm:text-2xl lg:text-3xl font-bold text-[#2D231B] tracking-tight">
+                Nama Tanaman
+              </h2>
+            </div>
+            
+            <!-- Big HST badge -->
+            <div class="text-right bg-white/90 border border-[#E8DFD3] rounded-2xl px-4 py-2.5 shadow-sm">
+              <div id="statHST" class="text-2xl sm:text-3xl font-black font-mono text-orange-600 tracking-tight leading-none">
+                HST 1
+              </div>
+              <span id="statTotalDays" class="text-[10px] font-mono text-[#8A7B6E] block mt-1">
+                / 100 Hari
+              </span>
+            </div>
+          </div>
+
+          <p id="cropSummary" class="text-xs sm:text-sm text-[#5D5044] leading-relaxed mb-4">
+            Ringkasan kebutuhan tanaman praktikum.
+          </p>
         </div>
 
-        <div class="flex justify-between items-center text-[10px] font-mono text-zinc-400 pt-0.5">
-          <span>Hari Ini</span>
-          <span>Target Panen: <b id="statHarvestDate" class="text-zinc-200">20 Des 2026</b></span>
+        <!-- Progress Bar -->
+        <div class="space-y-2 pt-3 border-t border-[#E8DFD3] relative z-10">
+          <div class="flex justify-between items-center text-xs font-mono">
+            <span class="text-[#7A6B5D] flex items-center gap-1.5 font-medium">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-orange-600"></i>
+              Progres Menuju Panen
+            </span>
+            <span id="statProgressPct" class="font-bold font-mono text-orange-600 text-sm">0%</span>
+          </div>
+          
+          <div class="w-full bg-[#EFE7DC] h-3 rounded-full overflow-hidden p-0.5">
+            <div id="statProgressBar" class="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-700 w-0"></div>
+          </div>
+
+          <div class="flex justify-between items-center text-[11px] font-mono text-[#8A7B6E] pt-0.5">
+            <span>Hari Ini</span>
+            <span>Target Panen: <b id="statHarvestDate" class="text-[#2D231B] font-semibold">20 Des 2026</b></span>
+          </div>
         </div>
-      </div>
 
-    </section>
+      </section>
 
-    <!-- NAVIGATION TABS (SEGMENTED CONTROL - 4 TABS) -->
-    <div class="grid grid-cols-4 gap-1.5 bg-[#121215] p-1.5 rounded-2xl border border-zinc-800 mb-6">
-      <button data-tab="timeline" class="tab-btn flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-medium transition bg-zinc-800 text-white border border-zinc-700">
-        <i data-lucide="git-commit" class="w-4 h-4 mb-1"></i>
-        <span class="text-[10px] sm:text-xs">Timeline</span>
+    </div>
+
+    <!-- NAVIGATION TABS (SEGMENTED CONTROL - RESPONSIVE 4 TABS) -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#EFE8DC] p-1.5 rounded-2xl border border-[#E2D6C5] mb-6 shadow-inner">
+      <button data-tab="timeline" class="tab-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-semibold transition bg-white text-[#2D231B] shadow-sm border border-[#DDD0BF] cursor-pointer">
+        <i data-lucide="git-commit" class="w-4 h-4 shrink-0"></i>
+        <span>Timeline Budidaya</span>
       </button>
 
-      <button data-tab="tasks" class="tab-btn flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-medium transition text-zinc-400 border border-transparent hover:text-white">
-        <i data-lucide="check-square" class="w-4 h-4 mb-1"></i>
-        <span class="text-[10px] sm:text-xs">Tugas</span>
+      <button data-tab="tasks" class="tab-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-medium transition text-[#7A6B5D] border border-transparent hover:text-[#2D231B] cursor-pointer">
+        <i data-lucide="check-square" class="w-4 h-4 shrink-0"></i>
+        <span>Logbook & Tugas</span>
       </button>
 
-      <button data-tab="care" class="tab-btn flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-medium transition text-zinc-400 border border-transparent hover:text-white">
-        <i data-lucide="droplet" class="w-4 h-4 mb-1"></i>
-        <span class="text-[10px] sm:text-xs">Air & Pupuk</span>
+      <button data-tab="care" class="tab-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-medium transition text-[#7A6B5D] border border-transparent hover:text-[#2D231B] cursor-pointer">
+        <i data-lucide="droplet" class="w-4 h-4 shrink-0"></i>
+        <span>Air & Nutrisi</span>
       </button>
 
-      <button data-tab="pests" class="tab-btn flex flex-col items-center justify-center py-2 px-1 rounded-xl text-xs font-medium transition text-zinc-400 border border-transparent hover:text-white">
-        <i data-lucide="shield-alert" class="w-4 h-4 mb-1"></i>
-        <span class="text-[10px] sm:text-xs">Hama PHT</span>
+      <button data-tab="pests" class="tab-btn flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-medium transition text-[#7A6B5D] border border-transparent hover:text-[#2D231B] cursor-pointer">
+        <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
+        <span>Hama & PHT</span>
       </button>
     </div>
 
     <!-- TAB 1: TIMELINE BUDIDAYA (ACTIVE DEFAULT) -->
     <section id="timelineTab" class="space-y-4">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-xs font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-          <i data-lucide="git-branch" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <h3 class="text-xs font-mono uppercase tracking-wider text-[#7A6B5D] flex items-center gap-1.5">
+          <i data-lucide="git-branch" class="w-3.5 h-3.5 text-orange-600"></i>
           Tahapan Fase Pertumbuhan
         </h3>
-        <span class="text-[11px] text-zinc-400">Berdasarkan HST</span>
+        <span class="text-[11px] text-[#8A7B6E]">Berdasarkan HST</span>
       </div>
 
       <div id="timelineContent">
@@ -242,8 +286,8 @@
     <!-- TAB 4: IDENTIFIKASI HAMA & PHT -->
     <section id="pestsTab" class="hidden space-y-4">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-xs font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <h3 class="text-xs font-mono uppercase tracking-wider text-[#7A6B5D] flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-orange-600"></i>
           Hama Utama & Pengendalian Terpadu (PHT)
         </h3>
       </div>
@@ -255,15 +299,37 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-zinc-800/80 bg-[#09090b] py-6 text-center text-xs text-zinc-500">
-    <div class="max-w-2xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div class="text-left">
-        <p class="font-bold text-zinc-300">AgriTimeline SV IPB</p>
-        <p class="text-[11px] text-zinc-400 mt-0.5">D4 Teknologi Produksi & Pengembangan Masyarakat Pertanian</p>
+  <footer class="border-t border-[#E8DFD3] bg-[#F7F2EA] py-7 text-xs text-[#7A6B5D]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pb-4 border-b border-[#E8DFD3]/80">
+        <div class="text-center sm:text-left">
+          <p class="font-bold text-[#2D231B] text-sm">AgroPlan SV IPB</p>
+          <p class="text-[11px] text-[#7A6B5D] mt-0.5">D4 Teknologi Produksi & Pengembangan Masyarakat Pertanian</p>
+        </div>
+        <div class="text-[11px] text-[#7A6B5D] flex items-center gap-1.5 bg-white border border-[#E8DFD3] px-3 py-1.5 rounded-xl shadow-sm">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-orange-600"></i>
+          <span>Vokasi Unggul, Pertanian Tangguh</span>
+        </div>
       </div>
-      <div class="text-[11px] text-zinc-400 flex items-center gap-1">
-        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
-        <span>Siap deploy ke Vercel</span>
+
+      <!-- Creator Credentials Box -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1 text-[11px]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-xl bg-orange-500/10 border border-orange-500/25 flex items-center justify-center text-orange-600 shrink-0">
+            <i data-lucide="award" class="w-4 h-4"></i>
+          </div>
+          <div class="text-center sm:text-left">
+            <span class="text-[#8A7B6E] block text-[10px] uppercase font-mono tracking-wider">Kreator & Pengembang:</span>
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 mt-0.5">
+              <span class="font-bold text-[#2D231B]">Hani Fransiska Setya Widodo</span>
+              <span class="font-mono text-[#8C4E1A] px-1.5 py-0.5 rounded-lg bg-orange-50 border border-orange-200 text-[10px] font-semibold">J0417251055</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-[#8A7B6E] text-[10px] font-mono">
+          © 2026 SV IPB University
+        </p>
       </div>
     </div>
   </footer>
@@ -271,47 +337,47 @@
   <!-- MODAL AUTH: MASUK & DAFTAR SUPABASE -->
   <div id="authModal" class="hidden fixed inset-0 z-[100] items-center justify-center p-4">
     <!-- Backdrop blur -->
-    <div id="authModalBackdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity cursor-pointer"></div>
+    <div id="authModalBackdrop" class="fixed inset-0 bg-[#2D231B]/40 backdrop-blur-sm transition-opacity cursor-pointer"></div>
 
     <!-- Modal Dialog -->
-    <div class="relative w-full max-w-sm bg-[#121215] border border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-2xl z-10 space-y-4">
+    <div class="relative w-full max-w-sm bg-[#FCFAF7] border border-[#E8DFD3] rounded-3xl p-5 sm:p-6 shadow-2xl z-10 space-y-4 text-[#2D231B]">
       <!-- Close Button -->
-      <button id="closeAuthModalBtn" class="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-800 transition cursor-pointer">
+      <button id="closeAuthModalBtn" class="absolute top-4 right-4 text-[#8A7B6E] hover:text-[#2D231B] p-1 rounded-lg hover:bg-[#F3EDE2] transition cursor-pointer">
         <i data-lucide="x" class="w-4 h-4"></i>
       </button>
 
       <!-- Header Modal -->
       <div class="space-y-1">
-        <div class="flex items-center gap-2 text-emerald-400">
+        <div class="flex items-center gap-2 text-orange-600">
           <i data-lucide="shield-check" class="w-5 h-5"></i>
           <span class="text-[11px] font-mono uppercase tracking-wider font-semibold">Autentikasi Akun</span>
         </div>
-        <h3 id="authModalTitle" class="text-base font-bold text-white tracking-tight">Masuk ke AgriTimeline</h3>
-        <p class="text-xs text-zinc-400">Kelola dan amankan catatan budidaya tanaman Anda.</p>
+        <h3 id="authModalTitle" class="text-base font-bold text-[#2D231B] tracking-tight">Masuk ke AgroPlan</h3>
+        <p class="text-xs text-[#7A6B5D]">Kelola dan amankan catatan budidaya tanaman Anda.</p>
       </div>
 
       <!-- Tab Switcher (Masuk / Daftar) -->
-      <div class="flex p-1 bg-zinc-900/90 border border-zinc-800 rounded-xl gap-1">
-        <button id="tabLoginBtn" type="button" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition cursor-pointer">
+      <div class="flex p-1 bg-[#EFE8DC] border border-[#E2D6C5] rounded-xl gap-1">
+        <button id="tabLoginBtn" type="button" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-orange-500 text-white shadow-sm transition cursor-pointer">
           Masuk
         </button>
-        <button id="tabRegisterBtn" type="button" class="flex-1 py-2 text-xs font-medium rounded-lg text-zinc-400 hover:text-white transition cursor-pointer">
+        <button id="tabRegisterBtn" type="button" class="flex-1 py-2 text-xs font-medium rounded-lg text-[#7A6B5D] hover:text-[#2D231B] transition cursor-pointer">
           Daftar Akun
         </button>
       </div>
 
       <!-- Config Warning & Quick Setup (shown only if keys not provided) -->
-      <div id="supabaseConfigWarning" class="hidden text-xs bg-amber-950/60 border border-amber-500/40 text-amber-200 p-3 rounded-xl space-y-2">
+      <div id="supabaseConfigWarning" class="hidden text-xs bg-amber-50 border border-amber-200 text-amber-900 p-3 rounded-xl space-y-2">
         <div class="flex items-start gap-2">
-          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
           <p class="leading-relaxed text-[11px]">
-            Kredensial Supabase belum terdeteksi di <code class="text-amber-100 font-mono text-[10px] bg-black/40 px-1 py-0.5 rounded">supabase-config.js</code>. Masukkan di bawah ini atau buka file tersebut:
+            Kredensial Supabase belum terdeteksi di <code class="text-amber-900 font-mono text-[10px] bg-amber-100 px-1 py-0.5 rounded border border-amber-300">supabase-config.js</code>. Masukkan di bawah ini atau buka file tersebut:
           </p>
         </div>
-        <form id="saveConfigForm" class="space-y-2 pt-1 border-t border-amber-500/20">
-          <input id="setupSupabaseUrl" type="url" placeholder="Supabase URL (https://...supabase.co)" class="w-full bg-zinc-950 border border-amber-500/30 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:outline-none focus:border-amber-400 font-mono" required />
-          <input id="setupSupabaseKey" type="text" placeholder="Supabase Anon/Public Key" class="w-full bg-zinc-950 border border-amber-500/30 rounded-lg px-2.5 py-1.5 text-[11px] text-white focus:outline-none focus:border-amber-400 font-mono" required />
-          <button type="submit" class="w-full py-1.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-lg text-[11px] transition cursor-pointer">
+        <form id="saveConfigForm" class="space-y-2 pt-1 border-t border-amber-200">
+          <input id="setupSupabaseUrl" type="url" placeholder="Supabase URL (https://...supabase.co)" class="w-full bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 text-[11px] text-[#2D231B] focus:outline-none focus:border-amber-500 font-mono" required />
+          <input id="setupSupabaseKey" type="text" placeholder="Supabase Anon/Public Key" class="w-full bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 text-[11px] text-[#2D231B] focus:outline-none focus:border-amber-500 font-mono" required />
+          <button type="submit" class="w-full py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-[11px] transition cursor-pointer">
             Simpan Kredensial di Browser
           </button>
         </form>
@@ -323,31 +389,31 @@
       <!-- FORM LOGIN -->
       <form id="loginForm" class="space-y-3">
         <div>
-          <label class="block text-[11px] font-mono text-zinc-400 mb-1">Email Mahasiswa / Pengguna</label>
+          <label class="block text-[11px] font-mono text-[#7A6B5D] mb-1">Email Mahasiswa / Pengguna</label>
           <input 
             id="loginEmail" 
             type="email" 
             required 
             placeholder="nama@apps.ipb.ac.id" 
-            class="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+            class="w-full bg-white border border-[#DDD0BF] rounded-xl px-3.5 py-2 text-xs text-[#2D231B] placeholder-[#A69687] focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition"
           />
         </div>
 
         <div>
-          <label class="block text-[11px] font-mono text-zinc-400 mb-1">Password</label>
+          <label class="block text-[11px] font-mono text-[#7A6B5D] mb-1">Password</label>
           <input 
             id="loginPassword" 
             type="password" 
             required 
             placeholder="••••••••" 
-            class="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+            class="w-full bg-white border border-[#DDD0BF] rounded-xl px-3.5 py-2 text-xs text-[#2D231B] placeholder-[#A69687] focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition"
           />
         </div>
 
         <button 
           id="loginSubmitBtn" 
           type="submit" 
-          class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition duration-200 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer mt-2"
+          class="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs transition duration-200 shadow-md shadow-orange-500/20 active:scale-95 cursor-pointer mt-2"
         >
           Masuk Sekarang
         </button>
@@ -355,40 +421,40 @@
 
       <!-- FORM REGISTER (EMAIL VERIFICATION) -->
       <form id="registerForm" class="hidden space-y-3">
-        <div class="bg-zinc-900/80 border border-zinc-800 p-2.5 rounded-xl text-[11px] text-zinc-400 flex items-start gap-2">
-          <i data-lucide="mail-check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+        <div class="bg-[#F5EFEB] border border-[#E8DFD3] p-2.5 rounded-xl text-[11px] text-[#5D5044] flex items-start gap-2">
+          <i data-lucide="mail-check" class="w-4 h-4 text-orange-600 shrink-0 mt-0.5"></i>
           <span class="leading-relaxed">
             Link konfirmasi aktivasi akun akan dikirimkan ke email Anda.
           </span>
         </div>
 
         <div>
-          <label class="block text-[11px] font-mono text-zinc-400 mb-1">Email Aktif</label>
+          <label class="block text-[11px] font-mono text-[#7A6B5D] mb-1">Email Aktif</label>
           <input 
             id="registerEmail" 
             type="email" 
             required 
             placeholder="nama@apps.ipb.ac.id" 
-            class="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+            class="w-full bg-white border border-[#DDD0BF] rounded-xl px-3.5 py-2 text-xs text-[#2D231B] placeholder-[#A69687] focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition"
           />
         </div>
 
         <div>
-          <label class="block text-[11px] font-mono text-zinc-400 mb-1">Password (Min. 6 Karakter)</label>
+          <label class="block text-[11px] font-mono text-[#7A6B5D] mb-1">Password (Min. 6 Karakter)</label>
           <input 
             id="registerPassword" 
             type="password" 
             required 
             minlength="6"
             placeholder="Minimal 6 karakter" 
-            class="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+            class="w-full bg-white border border-[#DDD0BF] rounded-xl px-3.5 py-2 text-xs text-[#2D231B] placeholder-[#A69687] focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition"
           />
         </div>
 
         <button 
           id="registerSubmitBtn" 
           type="submit" 
-          class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold rounded-xl text-xs transition duration-200 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer mt-2"
+          class="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-xs transition duration-200 shadow-md shadow-orange-500/20 active:scale-95 cursor-pointer mt-2"
         >
           Daftar Akun
         </button>

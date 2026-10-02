@@ -1,5 +1,5 @@
 /**
- * AgriTimeline SV IPB — Authentication Engine (Supabase)
+ * AgroPlan SV IPB — Authentication Engine (Supabase)
  * Login, Register, and Email Verification Handling
  */
 
@@ -12,8 +12,8 @@
     if (supabaseClient) return supabaseClient;
 
     const config = window.SUPABASE_CONFIG || {};
-    const url = config.url || localStorage.getItem("agritimeline_supabase_url");
-    const anonKey = config.anonKey || localStorage.getItem("agritimeline_supabase_key");
+    const url = config.url || localStorage.getItem("agroplan_supabase_url") || localStorage.getItem("agritimeline_supabase_url");
+    const anonKey = config.anonKey || localStorage.getItem("agroplan_supabase_key") || localStorage.getItem("agritimeline_supabase_key");
 
     if (!url || !anonKey || url === "" || anonKey === "") {
       return null;
@@ -34,22 +34,22 @@
     if (!toast) {
       toast = document.createElement("div");
       toast.id = "authToast";
-      toast.className = "fixed bottom-5 right-5 z-[100] max-w-sm px-4 py-3 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-2.5 transition-all duration-300 transform translate-y-10 opacity-0";
+      toast.className = "fixed bottom-5 right-5 z-[100] max-w-sm px-4 py-3 rounded-2xl shadow-xl text-xs font-medium flex items-center gap-2.5 transition-all duration-300 transform translate-y-10 opacity-0";
       document.body.appendChild(toast);
     }
 
     // Color by type
     if (type === "success") {
-      toast.className = "fixed bottom-5 right-5 z-[100] max-w-sm px-4 py-3 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-2.5 transition-all duration-300 bg-emerald-950 text-emerald-200 border border-emerald-500/50 shadow-emerald-950/50";
+      toast.className = "fixed bottom-5 right-5 z-[100] max-w-sm px-4 py-3 rounded-2xl shadow-xl text-xs font-medium flex items-center gap-2.5 transition-all duration-300 bg-white text-[#2D231B] border border-orange-300 shadow-orange-950/5";
     } else if (type === "error") {
-      toast.className = "fixed bottom-5 right-5 z-[100] max-w-sm px-4 py-3 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-2.5 transition-all duration-300 bg-red-950 text-red-200 border border-red-500/50 shadow-red-950/50";
+      toast.className = "fixed bottom-5 right-5 z-[100] max-w-sm px-4 py-3 rounded-2xl shadow-xl text-xs font-medium flex items-center gap-2.5 transition-all duration-300 bg-rose-50 text-rose-900 border border-rose-200 shadow-rose-950/5";
     } else {
-      toast.className = "fixed bottom-5 right-5 z-[100] max-w-sm px-4 py-3 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-2.5 transition-all duration-300 bg-zinc-900 text-zinc-200 border border-zinc-700 shadow-zinc-950/50";
+      toast.className = "fixed bottom-5 right-5 z-[100] max-w-sm px-4 py-3 rounded-2xl shadow-xl text-xs font-medium flex items-center gap-2.5 transition-all duration-300 bg-white text-[#2D231B] border border-[#E8DFD3] shadow-stone-900/5";
     }
 
     toast.innerHTML = `
-      <div class="flex-1">${message}</div>
-      <button class="text-zinc-400 hover:text-white" onclick="this.parentElement.classList.add('opacity-0', 'translate-y-10')">&times;</button>
+      <div class="flex-1 leading-relaxed">${message}</div>
+      <button class="text-[#8A7B6E] hover:text-[#2D231B] font-bold text-sm px-1 cursor-pointer" onclick="this.parentElement.classList.add('opacity-0', 'translate-y-10')">&times;</button>
     `;
 
     // Show
@@ -81,16 +81,23 @@
       if (userProfileNav) userProfileNav.classList.add("hidden");
       if (userEmailNav) userEmailNav.innerText = "";
     }
+
+    // Beritahu script lain (seperti app.js) bahwa status auth berubah
+    window.dispatchEvent(new CustomEvent("agroplan:auth-changed", { detail: { user } }));
   }
 
   // Modal Controls
-  function openAuthModal(defaultTab = "login") {
+  function openAuthModal(defaultTab = "login", customMessage = null) {
     const modal = document.getElementById("authModal");
     if (!modal) return;
     modal.classList.remove("hidden");
     modal.classList.add("flex");
     switchAuthTab(defaultTab);
     clearAuthAlert();
+
+    if (customMessage) {
+      showAuthAlert(customMessage, "warning");
+    }
 
     // Check if configuration is missing
     const client = getSupabaseClient();
@@ -121,20 +128,20 @@
 
     if (tab === "login") {
       if (loginTabBtn) {
-        loginTabBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition cursor-pointer";
+        loginTabBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-orange-500 text-white shadow-sm transition cursor-pointer";
       }
       if (registerTabBtn) {
-        registerTabBtn.className = "flex-1 py-2 text-xs font-medium rounded-lg text-zinc-400 hover:text-white transition cursor-pointer";
+        registerTabBtn.className = "flex-1 py-2 text-xs font-medium rounded-lg text-[#7A6B5D] hover:text-[#2D231B] transition cursor-pointer";
       }
       if (loginForm) loginForm.classList.remove("hidden");
       if (registerForm) registerForm.classList.add("hidden");
-      if (modalTitle) modalTitle.innerText = "Masuk ke AgriTimeline";
+      if (modalTitle) modalTitle.innerText = "Masuk ke AgroPlan";
     } else {
       if (registerTabBtn) {
-        registerTabBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition cursor-pointer";
+        registerTabBtn.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-orange-500 text-white shadow-sm transition cursor-pointer";
       }
       if (loginTabBtn) {
-        loginTabBtn.className = "flex-1 py-2 text-xs font-medium rounded-lg text-zinc-400 hover:text-white transition cursor-pointer";
+        loginTabBtn.className = "flex-1 py-2 text-xs font-medium rounded-lg text-[#7A6B5D] hover:text-[#2D231B] transition cursor-pointer";
       }
       if (loginForm) loginForm.classList.add("hidden");
       if (registerForm) registerForm.classList.remove("hidden");
@@ -150,14 +157,14 @@
     const alertBox = document.getElementById("authAlert");
     if (!alertBox) return;
 
-    alertBox.classList.remove("hidden", "bg-red-950/80", "border-red-500/40", "text-red-300", "bg-emerald-950/80", "border-emerald-500/40", "text-emerald-300", "bg-amber-950/80", "border-amber-500/40", "text-amber-300");
+    alertBox.classList.remove("hidden", "bg-rose-50", "border-rose-200", "text-rose-900", "bg-emerald-50", "border-emerald-200", "text-emerald-900", "bg-amber-50", "border-amber-200", "text-amber-900");
 
     if (type === "success") {
-      alertBox.classList.add("bg-emerald-950/80", "border-emerald-500/40", "text-emerald-300");
+      alertBox.classList.add("bg-emerald-50", "border-emerald-200", "text-emerald-900");
     } else if (type === "warning") {
-      alertBox.classList.add("bg-amber-950/80", "border-amber-500/40", "text-amber-300");
+      alertBox.classList.add("bg-amber-50", "border-amber-200", "text-amber-900");
     } else {
-      alertBox.classList.add("bg-red-950/80", "border-red-500/40", "text-red-300");
+      alertBox.classList.add("bg-rose-50", "border-rose-200", "text-rose-900");
     }
 
     alertBox.innerHTML = message;
@@ -197,7 +204,7 @@
     try {
       submitBtn.disabled = true;
       submitBtn.innerHTML = `
-        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-black inline" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -221,14 +228,14 @@
       if (data?.user && (!data.session || data.user.identities?.length === 0)) {
         showAuthAlert(`
           <div class="space-y-1.5">
-            <p class="font-bold flex items-center gap-1.5 text-emerald-400">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <p class="font-bold flex items-center gap-1.5 text-orange-700">
+              <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
               Pendaftaran Berhasil!
             </p>
-            <p class="text-xs text-zinc-300">
+            <p class="text-xs text-[#5D5044]">
               Email konfirmasi telah dikirim ke <strong>${email}</strong>.
             </p>
-            <p class="text-[11px] text-zinc-400 bg-zinc-900/80 p-2 rounded border border-zinc-800">
+            <p class="text-[11px] text-[#7A6B5D] bg-[#F5EFEB] p-2.5 rounded-xl border border-[#E8DFD3]">
               Silakan buka inbox atau folder spam email Anda, lalu klik tautan <strong>Confirm your mail</strong> untuk mengaktifkan akun Anda.
             </p>
           </div>
@@ -273,7 +280,7 @@
     try {
       submitBtn.disabled = true;
       submitBtn.innerHTML = `
-        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-black inline" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -337,6 +344,8 @@
       return;
     }
 
+    localStorage.setItem("agroplan_supabase_url", urlInput);
+    localStorage.setItem("agroplan_supabase_key", keyInput);
     localStorage.setItem("agritimeline_supabase_url", urlInput);
     localStorage.setItem("agritimeline_supabase_key", keyInput);
 
@@ -417,11 +426,11 @@
       const hash = window.location.hash;
       const search = window.location.search;
       if (hash && (hash.includes("access_token=") || hash.includes("type=signup") || hash.includes("type=recovery"))) {
-        showToast("🎉 Email berhasil diverifikasi! Selamat datang di AgriTimeline.", "success");
+        showToast("🎉 Email berhasil diverifikasi! Selamat datang di AgroPlan.", "success");
         // Bersihkan hash dari URL agar rapi
         window.history.replaceState({}, document.title, window.location.pathname);
       } else if (search && search.includes("code=")) {
-        showToast("🎉 Email berhasil diverifikasi! Selamat datang di AgriTimeline.", "success");
+        showToast("🎉 Email berhasil diverifikasi! Selamat datang di AgroPlan.", "success");
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
@@ -446,7 +455,7 @@
   }
 
   // Export helper ke global window bila dibutuhkan
-  window.AgriAuth = {
+  window.AgroPlanAuth = window.AgroAuth = window.AgriAuth = {
     openModal: openAuthModal,
     closeModal: closeAuthModal,
     getClient: getSupabaseClient,

@@ -1,6 +1,6 @@
-# 📅 AgriTimeline: Generator Timeline & Tracker Budidaya Tanaman SV IPB
+# 📅 AgroPlan: Generator Timeline & Tracker Budidaya Tanaman SV IPB
 
-> **Aplikasi Web Mobile-First untuk Mahasiswa: Dari Benih hingga Panen, Lengkap dengan Jadwal Siram, Dosis Pupuk, dan Identifikasi Hama**  
+> **Aplikasi Web Asisten Budidaya Tanaman: Dari Benih hingga Panen, Lengkap dengan Jadwal Siram, Dosis Pupuk, dan Identifikasi Hama**  
 > *Perspektif: Mahasiswa D4 Teknologi Produksi dan Pengembangan Masyarakat Pertanian (PPP) SV IPB*
 
 ---
@@ -15,7 +15,7 @@ Mahasiswa pertanian dan pemula sering kali kesulitan mengelola waktu praktikum b
 4. **Logbook Lapangan Berserak:** Mahasiswa butuh checklist harian dan rekap perkembangan tanaman untuk laporan praktikum.
 
 ### 1.2 Solusi
-**AgriTimeline** adalah asisten budidaya berbasis web mobile-first. Pengguna cukup memilih jenis tanaman dan tanggal mulai tanam. Sistem secara otomatis menghitung dan merancang:
+**AgroPlan** adalah asisten budidaya berbasis web responsif modern. Pengguna cukup memilih jenis tanaman dan tanggal mulai tanam. Sistem secara otomatis menghitung dan merancang:
 * **Timeline Budidaya Dinamis:** Fase semai, pindah tanam, vegetatif, pembungaan, hingga panen dengan estimasi tanggal riil.
 * **Jadwal Penyiraman & Kebutuhan Pupuk:** Dosis gram/liter, teknik aplikasi (kocor/semprot), dan frekuensi harian.
 * **Deteksi & Pencegahan Hama:** Gejala dini dan resep Pengendalian Hama Terpadu (PHT) ramah lingkungan.
@@ -27,7 +27,7 @@ Mahasiswa pertanian dan pemula sering kali kesulitan mengelola waktu praktikum b
 
 ```mermaid
 flowchart TD
-    A[Buka AgriTimeline] --> B[Pilih Tanaman: Cabai / Tomat / Selada / Pakcoy / Melon]
+    A[Buka AgroPlan] --> B[Pilih Tanaman: Cabai / Tomat / Selada / Pakcoy / Melon]
     B --> C[Set Tanggal Mulai Tanam / Semai]
     C --> D[Sistem Kalkulasi HST & Kalender Riil]
     D --> E[Dashboard Mobile-First Tampil]
@@ -41,7 +41,7 @@ flowchart TD
 
 ## 3. Spesifikasi Teknis
 
-* **Desain:** Simple, sleek, modern (Dark Zinc + Emerald Accent), mobile-first.
+* **Desain:** Soft, warm, premium & modern (Warm White on Cream & Light Brown with Warm Terracotta/Orange Accents), mobile-first, soft to the eyes.
 * **Ikon:** [Lucide Icons](https://lucide.dev) via CDN (`lucide.createIcons()`).
 * **Styling:** Tailwind CSS via CDN.
 * **Logika & Data:** Vanilla JavaScript (ES6+), kalkulator HST otomatis, dan persistensi sesi/tasks.
@@ -66,4 +66,13 @@ flowchart TD
    - **Confirm email** aktif (`ON`).
 4. Pastikan di Supabase Dashboard (**Authentication > URL Configuration**):
    - **Site URL** dan **Redirect URLs** diarahkan ke domain Vercel Anda (misal `https://your-app.vercel.app/**`).
+
+---
+
+## 4. Pengembang / Creator
+* **Nama Lengkap:** Hani Fransiska Setya Widodo
+* **NIM:** J0417251055
+* **Program Studi:** D4 Teknologi Produksi dan Pengembangan Masyarakat Pertanian (PPP)
+* **Institusi:** Sekolah Vokasi, IPB University
+
 
